@@ -3,17 +3,6 @@
 #include <iostream>
 using namespace std;
 
-/********************* Dimensions Struct ********************/
-
-dimensions::dimensions() : width(0), height(0) {}
-
-dimensions::dimensions(double w, double h) : width(w), height(h) {}
-
-ostream& operator << (ostream& outs, const dimensions &d) {
-    outs << "[" << d.width << ", " << d.height << "]";
-    return outs;
-}
-
 
 Rect::Rect() : Shape(), size({0, 0}) {
 }

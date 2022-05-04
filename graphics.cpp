@@ -2,6 +2,7 @@
 #include "circle.h"
 #include "rect.h"
 #include "car.h"
+#include "tree.h"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -191,6 +192,13 @@ void display() {
         for (const char &letter : line5) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
+
+        Tree t = Tree(0,0);
+        t.setSize(dimensions(100,300));
+
+        cout << t.getCenterX() << endl;
+        t.draw();
+
     }
     /*
      * Game screen

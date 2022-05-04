@@ -29,6 +29,17 @@ ostream& operator << (ostream& outs, const point2D &p) {
     return outs;
 }
 
+/********************* Dimensions Struct ********************/
+
+dimensions::dimensions() : width(0), height(0) {}
+
+dimensions::dimensions(double w, double h) : width(w), height(h) {}
+
+ostream& operator << (ostream& outs, const dimensions &d) {
+    outs << "[" << d.width << ", " << d.height << "]";
+    return outs;
+}
+
 /********************* Shape Class *********************/
 
 Shape::Shape() : fill({0.0, 0.0, 0.0}), center({0, 0}) {

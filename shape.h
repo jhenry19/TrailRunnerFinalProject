@@ -6,6 +6,18 @@
 
 const double PI = 3.14159265358979323846;
 
+struct dimensions {
+    double width;
+    double height;
+
+    /* Constructors */
+    dimensions();
+    dimensions(double w, double h);
+
+    /* Overloaded Operator */
+    friend std::ostream& operator << (std::ostream& outs, const dimensions &d);
+};
+
 struct color {
     double red;
     double green;

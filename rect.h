@@ -3,18 +3,6 @@
 
 #include "shape.h"
 
-struct dimensions {
-    double width;
-    double height;
-
-    /* Constructors */
-    dimensions();
-    dimensions(double w, double h);
-
-    /* Overloaded Operator */
-    friend std::ostream& operator << (std::ostream& outs, const dimensions &d);
-};
-
 class Rect : public Shape {
 private:
     dimensions size;
