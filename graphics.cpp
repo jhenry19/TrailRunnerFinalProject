@@ -25,8 +25,7 @@ const color orange(255/255.0, 165/255.0, 0);
 vector<unique_ptr<Shape>> clouds;
 Rect road;
 Rect roadLine;
-vector<Rect> buildings;
-vector<color> buildingColors;
+vector<Tree> trees;
 Rect user;
 vector<unique_ptr<Car>> cars;
 vector<int> carSpeed;
@@ -71,32 +70,27 @@ void initRoad() {
     roadLine.setCenter(250, 472);
 }
 
-void initBuildings() {
-    // Creates the list of colors that a building can be
-    buildingColors.push_back(brown);
-    buildingColors.push_back(lightGrey);
-    buildingColors.push_back(blueGrey);
-    buildingColors.push_back(purple);
-    buildingColors.push_back(orange);
+void initTrees() {
 
-    buildings.clear();
+    trees.clear();
 
-    int totalBuildingWidth = 0;
-    dimensions buildingSize;
+    int totalTreeWidth = 0;
+    dimensions treeSize;
 
     // Creates the buildings
-    while (totalBuildingWidth < width + 200) {
-        // Building height between 150-350
-        buildingSize.height = rand() % 201 + 150;
-        // Building width between 75-175
-        buildingSize.width = rand() % 101 + 75;
+    while (totalTreeWidth < width + 200) {
+        // Tree height between 300-400
+        treeSize.height = rand() % 201 + 200;
+        // Building width between 100-150
+        treeSize.width = rand() % 51 + 50;
 
-        buildings.push_back(Rect(buildingColors[rand() % 5],
-                                  totalBuildingWidth+(buildingSize.width/2) + 5,
-                                  height - ((buildingSize.height/2) + 50),
-                                 buildingSize));
+        trees.push_back(Tree(totalTreeWidth + (treeSize.width/2) + 5,
+                             height - ((treeSize.height/2) + 50),
+                                 treeSize));
 
-        totalBuildingWidth += buildingSize.width + 15;
+        cout <<  height - ((treeSize.height/2) + 50) << endl;
+
+        totalTreeWidth += treeSize.width + 15;
     }
 }
 
@@ -129,7 +123,7 @@ void init() {
     srand(time(0));
     initClouds();
     initRoad();
-    initBuildings();
+    initTrees();
     initUser();
     initGame();
     sendCar();
@@ -193,10 +187,9 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
 
-        Tree t = Tree(0,0);
+        Tree t = Tree(100,200);
         t.setSize(dimensions(100,300));
 
-        cout << t.getCenterX() << endl;
         t.draw();
 
     }
@@ -211,8 +204,8 @@ void display() {
         }
 
         //Draws Buildings
-        for (Rect &r: buildings) {
-            r.draw();
+        for (Tree &t: trees) {
+            t.draw();
         }
 
         // Draws road
@@ -295,20 +288,19 @@ void cloudTimer(int dummy) {
     glutTimerFunc(100, cloudTimer, dummy);
 }
 
-void buildingTimer(int dummy) {
-    for (int i = 0; i < buildings.size(); ++i) {
+void treeTimer(int dummy) {
+    for (int i = 0; i < trees.size(); ++i) {
         // Move all the  buildings to the left
-        buildings[i].moveX(-2);
+        trees[i].moveX(-2);
         // If a shape has moved off the screen
-        if (buildings[i].getCenterX() < -(buildings[i].getWidth() / 2)) {
+        if (trees[i].getCenterX() < -(trees[i].getWidth() / 2)) {
             // Set it to the right of the screen so that it passes through again
-            int buildingOnLeft = (i == 0) ? buildings.size() - 1 : i - 1;
-            buildings[i].setCenterX(buildings[buildingOnLeft].getCenterX() + buildings[buildingOnLeft].getWidth() / 2 + buildings[i].getWidth() / 2 + 5);
-            buildings[i].setColor(buildingColors[rand() % 5]); // Resets to a random color
+            int buildingOnLeft = (i == 0) ? trees.size() - 1 : i - 1;
+            trees[i].setCenterX(trees[buildingOnLeft].getCenterX() + trees[buildingOnLeft].getWidth() / 2 + trees[i].getWidth() / 2 + 5);
         }
     }
     // Getting rid of the redisplay call here makes the game run way smoother. The car timer runs the redisplay so there's no need to call it here
-    glutTimerFunc(50, buildingTimer, dummy);
+    glutTimerFunc(50, treeTimer, dummy);
 }
 
 void carTimer(int dummy) {
@@ -348,7 +340,7 @@ void kbd(unsigned char key, int x, int y) {
     if (key == 32 && collision) {
         initClouds();
         initRoad();
-        initBuildings();
+        initTrees();
         initUser();
         initGame();
         sendCar();
@@ -377,7 +369,7 @@ void mouse(int button, int state, int x, int y) {
 
         // Starts the timers
         glutTimerFunc(0, cloudTimer, 0);
-        glutTimerFunc(0, buildingTimer, 0);
+        glutTimerFunc(0, treeTimer, 0);
         glutTimerFunc(0,carTimer, 0);
     }
     glutPostRedisplay();
