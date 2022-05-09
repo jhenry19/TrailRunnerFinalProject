@@ -32,11 +32,12 @@ vector<int> rockSpeed;
 // For the user to jump
 const int userStartY = 425;
 const double GRAVITY = -20;
-const double INIT_VELOCITY = 65;
+const double INIT_VELOCITY = 80;
 double deltaY;
-int userVelocity;
-int userAcceleration;
+double userVelocity;
 bool userJumping;
+bool longJump;
+bool onGround;
 double userJumpCount; // Used to gradually progress the user jumping
 double jumpY; // Used in calculating the position of the user during a jump;
 
@@ -45,6 +46,9 @@ bool userDucking;
 
 enum screen {intro, avatar, game};
 screen currentScreen;
+
+enum difficulty {easy, medium, hard};
+difficulty currentDifficulty;
 
 int score;
 string scoreAsString; // used so variables aren't initialized in the display loop
@@ -100,9 +104,10 @@ void initUser() {
 
     // Initial values set for user jumping
     userJumping = false;
+    longJump = false;
+    onGround = true;
     userJumpCount = 0;
     userVelocity = 0;
-    userAcceleration = 0;
 }
 
 void initGame() {
@@ -112,10 +117,26 @@ void initGame() {
     collision = false;
 }
 
-void sendRock() {
-    int radius = rand() % 20 + 10;
+void sendRock(){
+    int radius;
+    int speed;
+    switch (currentDifficulty) {
+        case easy:
+            radius = rand() % 30 + 15;
+            speed = -((rand() % 15) + 5);
+            break;
+        case medium:
+            radius = rand() % 35 + 15;
+            speed = -((rand() % 20) + 5);
+            break;
+        case hard:
+            radius = rand() % 40 + 15;
+            speed = -((rand() % 25) + 10);
+            break;
+    }
+
     rocks.push_back(make_unique<Rock>(black, 500, 440, radius));
-    rockSpeed.push_back(-((rand() % 15) + 3));
+    rockSpeed.push_back(speed);
 }
 
 void init() {
@@ -206,6 +227,14 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
+        //todo user selects name
+        
+        //todo user selects color
+        
+        //todo user selects difficulty
+        currentDifficulty = easy; // this is a placeholder value so the game can be tested
+        
+
     }
     /*
      * Game screen
@@ -231,14 +260,20 @@ void display() {
             // The physics for how the user jumps
             deltaY = (userVelocity * userJumpCount) + (GRAVITY * (userJumpCount * userJumpCount) / 2);
             jumpY = userStartY - (deltaY);
-            userVelocity = userVelocity + (userAcceleration * userJumpCount);
+
+            if (!longJump) {
+                userVelocity += (GRAVITY * userJumpCount) * .05;
+            }
+            else{
+                userVelocity += (GRAVITY * userJumpCount) * .005;
+            }
 
             // If the user is on the ground the jump is stopped
             if (jumpY > userStartY) {
                 userJumping = false;
                 userJumpCount = 0;
                 userVelocity = 0;
-                userAcceleration = 0;
+                onGround = true;
                 user.setCenterY(userStartY);
             } else { // else the user continues the jump
                 user.setCenterY(jumpY);
@@ -268,7 +303,7 @@ void display() {
             box.draw();
 
             glColor3f(0, 0, 0);
-            string line1 = "You were hit by a car!";
+            string line1 = "You were squashed by a rock!";
             string line2 = "Your score was " + scoreAsString + ".";
             string line3 = "To play again, press space. To quit, press escape";
 
@@ -332,10 +367,10 @@ void rockTimer(int dummy) {
 
             sendRock(); // sends another car
         }
-        // If the car hits the user
-//        if (rocks[i]->isOverlapping(user)) {
-//            collision = true;
-//        }
+//         If the car hits the user
+        if (rocks[i]->isOverlapping(user)) {
+            collision = true;
+        }
     }
 
     glutPostRedisplay();
@@ -364,14 +399,18 @@ void kbd(unsigned char key, int x, int y) {
 }
 
 void kbdS(int key, int x, int y) {
-    // Had to break this out of the switch so that the value would reset when the down arrow isn't pressed
-    if (key == GLUT_KEY_DOWN) {
+    if (key == GLUT_KEY_DOWN && onGround) {
         userDucking = true;
     }
+    else if (key == GLUT_KEY_DOWN) {
+        longJump = false;
+    }
 
-    if (key == GLUT_KEY_UP) {
+    if (key == GLUT_KEY_UP && onGround) {
             userJumping = true;
             userVelocity = INIT_VELOCITY;
+            onGround = false;
+            longJump = true;
     }
 }
 
