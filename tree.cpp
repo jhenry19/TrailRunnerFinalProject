@@ -71,6 +71,7 @@ dimensions Tree::getSize() const {
     return size;
 }
 
+
 double Tree::getWidth() const {
     return size.width;
 }
@@ -125,27 +126,24 @@ void Tree::changeHeight(double delta) {
     setSize({size.width, size.height + delta});
 }
 
-void Tree::draw() const {
-    cout << center.x << endl;
-    cout << (size.width / 2.0) << endl;
-    cout << center.x + (size.width / 2.0) << endl;
+void Tree::draw() const {;
+
+    // Draw trunk
+    glColor3f(165.0/255, 42.0/255, 42.0/255);
+    glBegin(GL_QUADS);
+    glVertex2i(this->getCenterX() - (this->getWidth() * (TRUNK_WIDTH / 2)), this->getTopY() + (this->getBottomY() * TRUNK_LEAVES_SPLIT));
+    glVertex2i(this->getCenterX() - (this->getWidth() * (TRUNK_WIDTH / 2)), this->getBottomY());
+    glVertex2i(this->getCenterX() + (this->getWidth() * (TRUNK_WIDTH / 2)), this->getBottomY());
+    glVertex2i(this->getCenterX() + (this->getWidth() * (TRUNK_WIDTH / 2)), this->getTopY() + (this->getBottomY() * TRUNK_LEAVES_SPLIT));
+    glEnd();
 
     // Draw leaves
     glColor3f(0,1,0);
     glBegin(GL_QUADS);
     glVertex2i(this->getLeftX(), this->getTopY());
-    glVertex2i(this->getLeftX(), this->getBottomY() * TRUNK_LEAVES_SPLIT);
-    glVertex2i(this->getRightX(), this->getBottomY() * TRUNK_LEAVES_SPLIT);
+    glVertex2i(this->getLeftX(), this->getTopY() + (this->getBottomY() * TRUNK_LEAVES_SPLIT));
+    glVertex2i(this->getRightX(), this->getTopY() + (this->getBottomY() * TRUNK_LEAVES_SPLIT));
     glVertex2i(this->getRightX(), this->getTopY());
-    glEnd();
-
-    // Draw trunk
-    glColor3f(165.0/255, 42.0/255, 42.0/255);
-    glBegin(GL_QUADS);
-    glVertex2i(this->getWidth() / 2 - (this->getWidth() * (TRUNK_WIDTH / 2)), this->getBottomY() * TRUNK_LEAVES_SPLIT);
-    glVertex2i(this->getWidth() / 2 - (this->getWidth() * (TRUNK_WIDTH / 2)), this->getBottomY());
-    glVertex2i(this->getWidth() / 2 + (this->getWidth() * (TRUNK_WIDTH / 2)), this->getBottomY());
-    glVertex2i(this->getWidth() / 2 + (this->getWidth() * (TRUNK_WIDTH / 2)), this->getBottomY() * TRUNK_LEAVES_SPLIT);
     glEnd();
 
 

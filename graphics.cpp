@@ -1,7 +1,7 @@
 #include "graphics.h"
 #include "circle.h"
 #include "rect.h"
-#include "car.h"
+#include "rock.h"
 #include "tree.h"
 #include <iostream>
 #include <memory>
@@ -23,22 +23,32 @@ const color orange(255/255.0, 165/255.0, 0);
 
 
 vector<unique_ptr<Shape>> clouds;
-Rect road;
-Rect roadLine;
-vector<Rect> buildings;
-vector<color> buildingColors;
+Rect trail;
+vector<Tree> trees;
 Rect user;
-vector<unique_ptr<Car>> cars;
-vector<int> carSpeed;
+vector<unique_ptr<Rock>> rocks;
+vector<int> rockSpeed;
 
+// For the user to jump
 const int userStartY = 425;
+const double GRAVITY = -20;
+const double INIT_VELOCITY = 80;
+double deltaY;
+double userVelocity;
 bool userJumping;
-bool speedUpJump; // Allows the user to make their user jump faster
-int userJumpCount; // Used to gradually progress the user jumping
+bool longJump;
+bool onGround;
+double userJumpCount; // Used to gradually progress the user jumping
 double jumpY; // Used in calculating the position of the user during a jump;
 
-enum screen {intro, game};
+//For the user to duck
+bool userDucking;
+
+enum screen {intro, avatar, game};
 screen currentScreen;
+
+enum difficulty {easy, medium, hard};
+difficulty currentDifficulty;
 
 int score;
 string scoreAsString; // used so variables aren't initialized in the display loop
@@ -59,44 +69,31 @@ void initClouds() {
     clouds.push_back(make_unique<Rect>(white, 115, 85, cloudBottom));
 }
 
-void initRoad() {
-    road.setCenter(250, 475);
-    road.setSize(width, 75);
-    road.setColor(grey);
-
-    // The yellow line on the road
-    roadLine.setWidth(width);
-    roadLine.setHeight(7);
-    roadLine.setColor(yellow);
-    roadLine.setCenter(250, 472);
+void initTrail() {
+    trail.setCenter(250, 475);
+    trail.setSize(width, 75);
+    trail.setColor(grey);
 }
 
-void initBuildings() {
-    // Creates the list of colors that a building can be
-    buildingColors.push_back(brown);
-    buildingColors.push_back(lightGrey);
-    buildingColors.push_back(blueGrey);
-    buildingColors.push_back(purple);
-    buildingColors.push_back(orange);
+void initTrees() {
 
-    buildings.clear();
+    trees.clear();
 
-    int totalBuildingWidth = 0;
-    dimensions buildingSize;
+    int totalTreeWidth = 0;
+    dimensions treeSize;
 
     // Creates the buildings
-    while (totalBuildingWidth < width + 200) {
-        // Building height between 150-350
-        buildingSize.height = rand() % 201 + 150;
-        // Building width between 75-175
-        buildingSize.width = rand() % 101 + 75;
+    while (totalTreeWidth < width + 200) {
+        // Tree height between 300-400
+        treeSize.height = rand() % 201 + 200;
+        // Building width between 100-150
+        treeSize.width = rand() % 51 + 50;
 
-        buildings.push_back(Rect(buildingColors[rand() % 5],
-                                  totalBuildingWidth+(buildingSize.width/2) + 5,
-                                  height - ((buildingSize.height/2) + 50),
-                                 buildingSize));
+        trees.push_back(Tree(totalTreeWidth + (treeSize.width/2) + 5,
+                             height - ((treeSize.height/2) + 50),
+                                 treeSize));
 
-        totalBuildingWidth += buildingSize.width + 15;
+        totalTreeWidth += treeSize.width + 15;
     }
 }
 
@@ -107,20 +104,39 @@ void initUser() {
 
     // Initial values set for user jumping
     userJumping = false;
+    longJump = false;
+    onGround = true;
     userJumpCount = 0;
-    speedUpJump = false;
+    userVelocity = 0;
 }
 
 void initGame() {
-    cars.clear();
+    rocks.clear();
     score = 0;
     scoreAsString = "0";
     collision = false;
 }
 
-void sendCar() {
-    cars.push_back(make_unique<Car>(black, 500, 440, dimensions(75,40)));
-    carSpeed.push_back(-((rand() % 15) + 3));
+void sendRock(){
+    int radius;
+    int speed;
+    switch (currentDifficulty) {
+        case easy:
+            radius = rand() % 30 + 15;
+            speed = -((rand() % 15) + 5);
+            break;
+        case medium:
+            radius = rand() % 35 + 15;
+            speed = -((rand() % 20) + 5);
+            break;
+        case hard:
+            radius = rand() % 40 + 15;
+            speed = -((rand() % 25) + 10);
+            break;
+    }
+
+    rocks.push_back(make_unique<Rock>(black, 500, 440, radius));
+    rockSpeed.push_back(speed);
 }
 
 void init() {
@@ -128,11 +144,11 @@ void init() {
     height = 500;
     srand(time(0));
     initClouds();
-    initRoad();
-    initBuildings();
+    initTrail();
+    initTrees();
     initUser();
     initGame();
-    sendCar();
+    sendRock();
     currentScreen = intro;
 }
 
@@ -166,19 +182,58 @@ void display() {
         glColor3f(0, 0, 0);
 
         // Prints the message to the window
-        string line1 = "Avatar Creation";
+        string line1 = "Get Ready to Jump!";
+        string line2 = "Use the up arrow to jump over the rocks.";
+        string line3 = "and use the down arrow to speed up your jump.";
+        string line4 = "To begin, click anywhere on the screen.";
+        string line5 = "To quit, press the escape key.";
 
-
-        glRasterPos2i(width * .35, height * .1);
+        glRasterPos2i(width * .35, height * .3);
         for (const char &letter : line1) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
+        glRasterPos2i(width * .17, height * .4);
+        for (const char &letter : line2) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+        glRasterPos2i(width * .15, height * .5);
+        for (const char &letter : line3) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+        glRasterPos2i(width * .17, height * .6);
+        for (const char &letter : line4) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
+        glRasterPos2i(width * .25, height * .7);
+        for (const char &letter : line5) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+        }
 
-        Tree t = Tree(0,0);
+        Tree t = Tree(100,200);
         t.setSize(dimensions(100,300));
 
-        cout << t.getCenterX() << endl;
         t.draw();
+
+    }
+
+    /*
+     * Avatar making screen
+     */
+    if (currentScreen == avatar) {
+        glColor3f(0,0,0);
+        string line1 = "Avatar Screen";
+        glRasterPos2i(width * .40, height * .15);
+        for (const char &letter : line1) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        //todo user selects name
+        
+        //todo user selects color
+        
+        //todo user selects difficulty
+        currentDifficulty = easy; // this is a placeholder value so the game can be tested
+        
 
     }
     /*
@@ -192,26 +247,33 @@ void display() {
         }
 
         //Draws Buildings
-        for (Rect &r: buildings) {
-            r.draw();
+        for (Tree &t: trees) {
+            t.draw();
         }
 
-        // Draws road
-        road.draw();
-        roadLine.draw();
+        // Draws trail
+        trail.draw();
 
         // Animation for user jumping. I tried this as a timer and the game started lagging like crazy, so it's better here
         if (userJumping) {
-            if (speedUpJump) userJumpCount += 3;
-            ++userJumpCount;
-            // The physics for how the user jumps (it's a parabola)
-            jumpY = userStartY + (.03 * (userJumpCount * userJumpCount) - 4 * userJumpCount);
+            userJumpCount += .1;
+            // The physics for how the user jumps
+            deltaY = (userVelocity * userJumpCount) + (GRAVITY * (userJumpCount * userJumpCount) / 2);
+            jumpY = userStartY - (deltaY);
+
+            if (!longJump) {
+                userVelocity += (GRAVITY * userJumpCount) * .05;
+            }
+            else{
+                userVelocity += (GRAVITY * userJumpCount) * .005;
+            }
 
             // If the user is on the ground the jump is stopped
-            if (jumpY >= userStartY) {
+            if (jumpY > userStartY) {
                 userJumping = false;
-                speedUpJump = false;
                 userJumpCount = 0;
+                userVelocity = 0;
+                onGround = true;
                 user.setCenterY(userStartY);
             } else { // else the user continues the jump
                 user.setCenterY(jumpY);
@@ -221,9 +283,9 @@ void display() {
         // Draws the user
         user.draw();
 
-        // Draws the cars
-        for (int i = 0; i < cars.size(); ++i) {
-            cars[i]->draw();
+        // Draws the rocks
+        for (int i = 0; i < rocks.size(); ++i) {
+            rocks[i]->draw();
         }
 
         // Shows the score in the top left corner
@@ -241,7 +303,7 @@ void display() {
             box.draw();
 
             glColor3f(0, 0, 0);
-            string line1 = "You were hit by a car!";
+            string line1 = "You were squashed by a rock!";
             string line2 = "Your score was " + scoreAsString + ".";
             string line3 = "To play again, press space. To quit, press escape";
 
@@ -276,38 +338,37 @@ void cloudTimer(int dummy) {
     glutTimerFunc(100, cloudTimer, dummy);
 }
 
-void buildingTimer(int dummy) {
-    for (int i = 0; i < buildings.size(); ++i) {
+void treeTimer(int dummy) {
+    for (int i = 0; i < trees.size(); ++i) {
         // Move all the  buildings to the left
-        buildings[i].moveX(-2);
+        trees[i].moveX(-2);
         // If a shape has moved off the screen
-        if (buildings[i].getCenterX() < -(buildings[i].getWidth() / 2)) {
+        if (trees[i].getCenterX() < -(trees[i].getWidth() / 2)) {
             // Set it to the right of the screen so that it passes through again
-            int buildingOnLeft = (i == 0) ? buildings.size() - 1 : i - 1;
-            buildings[i].setCenterX(buildings[buildingOnLeft].getCenterX() + buildings[buildingOnLeft].getWidth() / 2 + buildings[i].getWidth() / 2 + 5);
-            buildings[i].setColor(buildingColors[rand() % 5]); // Resets to a random color
+            int buildingOnLeft = (i == 0) ? trees.size() - 1 : i - 1;
+            trees[i].setCenterX(trees[buildingOnLeft].getCenterX() + trees[buildingOnLeft].getWidth() / 2 + trees[i].getWidth() / 2 + 5);
         }
     }
     // Getting rid of the redisplay call here makes the game run way smoother. The car timer runs the redisplay so there's no need to call it here
-    glutTimerFunc(50, buildingTimer, dummy);
+    glutTimerFunc(50, treeTimer, dummy);
 }
 
-void carTimer(int dummy) {
-    for (int i = 0; i < cars.size(); ++i) {
-        cars[i]->moveX(carSpeed[i]); // Move each car according to its own speed
+void rockTimer(int dummy) {
+    for (int i = 0; i < rocks.size(); ++i) {
+        rocks[i]->moveX(rockSpeed[i]); // Move each car according to its own speed
 
         // If a car has moved off the screen
-        if (cars[i]->getRightX() <= 0) {
-            cars.erase(cars.begin()); // removes the first element of the array
-            carSpeed.erase(carSpeed.begin()); // removes the first element of the array
+        if (rocks[i]->getRightX() <= 0) {
+            rocks.erase(rocks.begin()); // removes the first element of the array
+            rockSpeed.erase(rockSpeed.begin()); // removes the first element of the array
 
             ++score; // add to score
             scoreAsString = to_string(score);
 
-            sendCar(); // sends another car
+            sendRock(); // sends another car
         }
-        // If the car hits the user
-        if (cars[i]->isOverlapping(user)) {
+//         If the car hits the user
+        if (rocks[i]->isOverlapping(user)) {
             collision = true;
         }
     }
@@ -315,7 +376,7 @@ void carTimer(int dummy) {
     glutPostRedisplay();
 
     // Timer is paused if there is a collision
-    if (!collision) glutTimerFunc(10, carTimer, dummy);
+    if (!collision) glutTimerFunc(10, rockTimer, dummy);
 }
 
 // http://www.theasciicode.com.ar/ascii-control-characters/escape-ascii-code-27.html
@@ -328,30 +389,29 @@ void kbd(unsigned char key, int x, int y) {
     // Space bar restarts the game after a collision
     if (key == 32 && collision) {
         initClouds();
-        initRoad();
-        initBuildings();
+        initTrail();
+        initTrees();
         initUser();
         initGame();
-        sendCar();
-        glutTimerFunc(10, carTimer, 0); // restart car timer after collision
+        sendRock();
+        glutTimerFunc(10, rockTimer, 0); // restart car timer after collision
     }
 }
 
 void kbdS(int key, int x, int y) {
-    // Had to break this out of the switch so that the value would reset when the down arrow isn't pressed
-    if (key == GLUT_KEY_DOWN) {
-        speedUpJump = true;
+    if (key == GLUT_KEY_DOWN && onGround) {
+        userDucking = true;
     }
-    else speedUpJump = false;
+    else if (key == GLUT_KEY_DOWN) {
+        longJump = false;
+    }
 
-    if (key == GLUT_KEY_UP) {
+    if (key == GLUT_KEY_UP && onGround) {
             userJumping = true;
+            userVelocity = INIT_VELOCITY;
+            onGround = false;
+            longJump = true;
     }
-}
-
-void cursor(int x, int y) {
-    user.setCenter(x,y);
-    glutPostRedisplay();
 }
 
 // button will be GLUT_LEFT_BUTTON or GLUT_RIGHT_BUTTON
@@ -359,12 +419,15 @@ void cursor(int x, int y) {
 void mouse(int button, int state, int x, int y) {
     // Listens for a click on the intro screen to start the game
     if(state == GLUT_DOWN && currentScreen == intro) {
+        currentScreen = avatar;
+    }
+    else if(state == GLUT_DOWN && currentScreen == avatar) {
         currentScreen = game;
 
         // Starts the timers
         glutTimerFunc(0, cloudTimer, 0);
-        glutTimerFunc(0, buildingTimer, 0);
-        glutTimerFunc(0,carTimer, 0);
+        glutTimerFunc(0, treeTimer, 0);
+        glutTimerFunc(0, rockTimer, 0);
     }
     glutPostRedisplay();
 }
@@ -381,7 +444,7 @@ int main(int argc, char** argv) {
     glutInitWindowSize((int)width, (int)height);
     glutInitWindowPosition(100, 200); // Position the window's initial top-left corner
     /* create the window and store the handle to it */
-    wd = glutCreateWindow("Jumper" /* title */ );
+    wd = glutCreateWindow("Trail Runner" /* title */ );
     
     // Register callback handler for window re-paint event
     glutDisplayFunc(display);
