@@ -23,17 +23,21 @@ const color orange(255/255.0, 165/255.0, 0);
 
 
 vector<unique_ptr<Shape>> clouds;
-Rect road;
-Rect roadLine;
+Rect trail;
 vector<Tree> trees;
 Rect user;
 vector<unique_ptr<Car>> cars;
 vector<int> carSpeed;
 
 const int userStartY = 425;
+const double GRAVITY = -20;
+const double INIT_VELOCITY = 65;
+double deltaY;
+int userVelocity;
+int userAcceleration;
 bool userJumping;
 bool speedUpJump; // Allows the user to make their user jump faster
-int userJumpCount; // Used to gradually progress the user jumping
+double userJumpCount; // Used to gradually progress the user jumping
 double jumpY; // Used in calculating the position of the user during a jump;
 
 enum screen {intro, game};
@@ -58,16 +62,10 @@ void initClouds() {
     clouds.push_back(make_unique<Rect>(white, 115, 85, cloudBottom));
 }
 
-void initRoad() {
-    road.setCenter(250, 475);
-    road.setSize(width, 75);
-    road.setColor(grey);
-
-    // The yellow line on the road
-    roadLine.setWidth(width);
-    roadLine.setHeight(7);
-    roadLine.setColor(yellow);
-    roadLine.setCenter(250, 472);
+void initTrail() {
+    trail.setCenter(250, 475);
+    trail.setSize(width, 75);
+    trail.setColor(grey);
 }
 
 void initTrees() {
@@ -88,8 +86,6 @@ void initTrees() {
                              height - ((treeSize.height/2) + 50),
                                  treeSize));
 
-        cout <<  height - ((treeSize.height/2) + 50) << endl;
-
         totalTreeWidth += treeSize.width + 15;
     }
 }
@@ -103,6 +99,8 @@ void initUser() {
     userJumping = false;
     userJumpCount = 0;
     speedUpJump = false;
+    userVelocity = 0;
+    userAcceleration = 0;
 }
 
 void initGame() {
@@ -122,7 +120,7 @@ void init() {
     height = 500;
     srand(time(0));
     initClouds();
-    initRoad();
+    initTrail();
     initTrees();
     initUser();
     initGame();
@@ -208,22 +206,25 @@ void display() {
             t.draw();
         }
 
-        // Draws road
-        road.draw();
-        roadLine.draw();
+        // Draws trail
+        trail.draw();
 
         // Animation for user jumping. I tried this as a timer and the game started lagging like crazy, so it's better here
         if (userJumping) {
             if (speedUpJump) userJumpCount += 3;
-            ++userJumpCount;
-            // The physics for how the user jumps (it's a parabola)
-            jumpY = userStartY + (.03 * (userJumpCount * userJumpCount) - 4 * userJumpCount);
+            userJumpCount += .1;
+            // The physics for how the user jumps
+            deltaY = (userVelocity * userJumpCount) + (GRAVITY * (userJumpCount * userJumpCount) / 2);
+            jumpY = userStartY - (deltaY);
+            userVelocity = userVelocity + (userAcceleration * userJumpCount);
 
             // If the user is on the ground the jump is stopped
-            if (jumpY >= userStartY) {
+            if (jumpY > userStartY) {
                 userJumping = false;
                 speedUpJump = false;
                 userJumpCount = 0;
+                userVelocity = 0;
+                userAcceleration = 0;
                 user.setCenterY(userStartY);
             } else { // else the user continues the jump
                 user.setCenterY(jumpY);
@@ -318,9 +319,9 @@ void carTimer(int dummy) {
             sendCar(); // sends another car
         }
         // If the car hits the user
-        if (cars[i]->isOverlapping(user)) {
-            collision = true;
-        }
+//        if (cars[i]->isOverlapping(user)) {
+//            collision = true;
+//        }
     }
 
     glutPostRedisplay();
@@ -339,7 +340,7 @@ void kbd(unsigned char key, int x, int y) {
     // Space bar restarts the game after a collision
     if (key == 32 && collision) {
         initClouds();
-        initRoad();
+        initTrail();
         initTrees();
         initUser();
         initGame();
@@ -357,6 +358,7 @@ void kbdS(int key, int x, int y) {
 
     if (key == GLUT_KEY_UP) {
             userJumping = true;
+            userVelocity = INIT_VELOCITY;
     }
 }
 
