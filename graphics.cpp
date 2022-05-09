@@ -220,15 +220,32 @@ void display() {
      * Avatar making screen
      */
     if (currentScreen == avatar) {
+        //Prints string to screen
         glColor3f(0,0,0);
-        string line1 = "Avatar Screen";
+        string line1 = "Avatar Creation";
         glRasterPos2i(width * .40, height * .15);
         for (const char &letter : line1) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
         //todo user selects name
-        
+        //Prints string to screen
+        string line2 = "Please input your name: ";
+        glRasterPos2i(width * .22, height * .25);
+        for (const char &letter : line2){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        //Create textbox
+        dimensions textBoxSize(150,22);
+        Rect textbox(1.0, 1.0, 1.0, .5, 385, 118, textBoxSize);
+        textbox.draw();
+
+
+
+
+
+
         //todo user selects color
         
         //todo user selects difficulty
