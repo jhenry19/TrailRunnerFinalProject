@@ -166,30 +166,11 @@ void display() {
         glColor3f(0, 0, 0);
 
         // Prints the message to the window
-        string line1 = "Get Ready to Jump!";
-        string line2 = "Use the up arrow to jump over the cars.";
-        string line3 = "and use the down arrow to speed up your jump.";
-        string line4 = "To begin, click anywhere on the screen.";
-        string line5 = "To quit, press the escape key.";
+        string line1 = "Avatar Creation";
 
-        glRasterPos2i(width * .35, height * .3);
+
+        glRasterPos2i(width * .35, height * .1);
         for (const char &letter : line1) {
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
-        }
-        glRasterPos2i(width * .17, height * .4);
-        for (const char &letter : line2) {
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
-        }
-        glRasterPos2i(width * .15, height * .5);
-        for (const char &letter : line3) {
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
-        }
-        glRasterPos2i(width * .17, height * .6);
-        for (const char &letter : line4) {
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
-        }
-        glRasterPos2i(width * .25, height * .7);
-        for (const char &letter : line5) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
 
@@ -366,6 +347,11 @@ void kbdS(int key, int x, int y) {
     if (key == GLUT_KEY_UP) {
             userJumping = true;
     }
+}
+
+void cursor(int x, int y) {
+    user.setCenter(x,y);
+    glutPostRedisplay();
 }
 
 // button will be GLUT_LEFT_BUTTON or GLUT_RIGHT_BUTTON
