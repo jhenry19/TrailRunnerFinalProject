@@ -29,7 +29,7 @@ file(GLOB SOURCE_FILES
         )
 
 add_executable(graphics ${SOURCE_FILES})
-add_executable(run car.cpp car.h circle.cpp circle.h graphics.cpp graphics.h rect.cpp rect.h shape.cpp shape.h tree.cpp tree.h)
+add_executable(run rock.cpp rock.h circle.cpp circle.h graphics.cpp graphics.h rect.cpp rect.h shape.cpp shape.h tree.cpp tree.h)
 
 if (WIN32)
     target_link_libraries (graphics ${OPENGL_LIBRARIES} freeglut)

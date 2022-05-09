@@ -1,7 +1,7 @@
 #include "graphics.h"
 #include "circle.h"
 #include "rect.h"
-#include "car.h"
+#include "rock.h"
 #include "tree.h"
 #include <iostream>
 #include <memory>
@@ -26,8 +26,8 @@ vector<unique_ptr<Shape>> clouds;
 Rect trail;
 vector<Tree> trees;
 Rect user;
-vector<unique_ptr<Car>> cars;
-vector<int> carSpeed;
+vector<unique_ptr<Rock>> rocks;
+vector<int> rockSpeed;
 
 // For the user to jump
 const int userStartY = 425;
@@ -106,15 +106,16 @@ void initUser() {
 }
 
 void initGame() {
-    cars.clear();
+    rocks.clear();
     score = 0;
     scoreAsString = "0";
     collision = false;
 }
 
-void sendCar() {
-    cars.push_back(make_unique<Car>(black, 500, 440, dimensions(75,40)));
-    carSpeed.push_back(-((rand() % 15) + 3));
+void sendRock() {
+    int radius = rand() % 20 + 10;
+    rocks.push_back(make_unique<Rock>(black, 500, 440, radius));
+    rockSpeed.push_back(-((rand() % 15) + 3));
 }
 
 void init() {
@@ -126,7 +127,7 @@ void init() {
     initTrees();
     initUser();
     initGame();
-    sendCar();
+    sendRock();
     currentScreen = intro;
 }
 
@@ -161,7 +162,7 @@ void display() {
 
         // Prints the message to the window
         string line1 = "Get Ready to Jump!";
-        string line2 = "Use the up arrow to jump over the cars.";
+        string line2 = "Use the up arrow to jump over the rocks.";
         string line3 = "and use the down arrow to speed up your jump.";
         string line4 = "To begin, click anywhere on the screen.";
         string line5 = "To quit, press the escape key.";
@@ -247,9 +248,9 @@ void display() {
         // Draws the user
         user.draw();
 
-        // Draws the cars
-        for (int i = 0; i < cars.size(); ++i) {
-            cars[i]->draw();
+        // Draws the rocks
+        for (int i = 0; i < rocks.size(); ++i) {
+            rocks[i]->draw();
         }
 
         // Shows the score in the top left corner
@@ -317,22 +318,22 @@ void treeTimer(int dummy) {
     glutTimerFunc(50, treeTimer, dummy);
 }
 
-void carTimer(int dummy) {
-    for (int i = 0; i < cars.size(); ++i) {
-        cars[i]->moveX(carSpeed[i]); // Move each car according to its own speed
+void rockTimer(int dummy) {
+    for (int i = 0; i < rocks.size(); ++i) {
+        rocks[i]->moveX(rockSpeed[i]); // Move each car according to its own speed
 
         // If a car has moved off the screen
-        if (cars[i]->getRightX() <= 0) {
-            cars.erase(cars.begin()); // removes the first element of the array
-            carSpeed.erase(carSpeed.begin()); // removes the first element of the array
+        if (rocks[i]->getRightX() <= 0) {
+            rocks.erase(rocks.begin()); // removes the first element of the array
+            rockSpeed.erase(rockSpeed.begin()); // removes the first element of the array
 
             ++score; // add to score
             scoreAsString = to_string(score);
 
-            sendCar(); // sends another car
+            sendRock(); // sends another car
         }
         // If the car hits the user
-//        if (cars[i]->isOverlapping(user)) {
+//        if (rocks[i]->isOverlapping(user)) {
 //            collision = true;
 //        }
     }
@@ -340,7 +341,7 @@ void carTimer(int dummy) {
     glutPostRedisplay();
 
     // Timer is paused if there is a collision
-    if (!collision) glutTimerFunc(10, carTimer, dummy);
+    if (!collision) glutTimerFunc(10, rockTimer, dummy);
 }
 
 // http://www.theasciicode.com.ar/ascii-control-characters/escape-ascii-code-27.html
@@ -357,8 +358,8 @@ void kbd(unsigned char key, int x, int y) {
         initTrees();
         initUser();
         initGame();
-        sendCar();
-        glutTimerFunc(10, carTimer, 0); // restart car timer after collision
+        sendRock();
+        glutTimerFunc(10, rockTimer, 0); // restart car timer after collision
     }
 }
 
@@ -387,7 +388,7 @@ void mouse(int button, int state, int x, int y) {
         // Starts the timers
         glutTimerFunc(0, cloudTimer, 0);
         glutTimerFunc(0, treeTimer, 0);
-        glutTimerFunc(0,carTimer, 0);
+        glutTimerFunc(0, rockTimer, 0);
     }
     glutPostRedisplay();
 }
