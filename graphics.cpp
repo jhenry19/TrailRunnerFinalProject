@@ -29,6 +29,7 @@ Rect user;
 vector<unique_ptr<Car>> cars;
 vector<int> carSpeed;
 
+// For the user to jump
 const int userStartY = 425;
 const double GRAVITY = -20;
 const double INIT_VELOCITY = 65;
@@ -36,11 +37,13 @@ double deltaY;
 int userVelocity;
 int userAcceleration;
 bool userJumping;
-bool speedUpJump; // Allows the user to make their user jump faster
 double userJumpCount; // Used to gradually progress the user jumping
 double jumpY; // Used in calculating the position of the user during a jump;
 
-enum screen {intro, game};
+//For the user to duck
+bool userDucking;
+
+enum screen {intro, avatar, game};
 screen currentScreen;
 
 int score;
@@ -98,7 +101,6 @@ void initUser() {
     // Initial values set for user jumping
     userJumping = false;
     userJumpCount = 0;
-    speedUpJump = false;
     userVelocity = 0;
     userAcceleration = 0;
 }
@@ -191,6 +193,19 @@ void display() {
         t.draw();
 
     }
+
+    /*
+     * Avatar making screen
+     */
+    if (currentScreen == avatar) {
+        glColor3f(0,0,0);
+        string line1 = "Avatar Screen";
+        glRasterPos2i(width * .40, height * .15);
+        for (const char &letter : line1) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+    }
     /*
      * Game screen
      */
@@ -211,7 +226,6 @@ void display() {
 
         // Animation for user jumping. I tried this as a timer and the game started lagging like crazy, so it's better here
         if (userJumping) {
-            if (speedUpJump) userJumpCount += 3;
             userJumpCount += .1;
             // The physics for how the user jumps
             deltaY = (userVelocity * userJumpCount) + (GRAVITY * (userJumpCount * userJumpCount) / 2);
@@ -221,7 +235,6 @@ void display() {
             // If the user is on the ground the jump is stopped
             if (jumpY > userStartY) {
                 userJumping = false;
-                speedUpJump = false;
                 userJumpCount = 0;
                 userVelocity = 0;
                 userAcceleration = 0;
@@ -352,9 +365,8 @@ void kbd(unsigned char key, int x, int y) {
 void kbdS(int key, int x, int y) {
     // Had to break this out of the switch so that the value would reset when the down arrow isn't pressed
     if (key == GLUT_KEY_DOWN) {
-        speedUpJump = true;
+        userDucking = true;
     }
-    else speedUpJump = false;
 
     if (key == GLUT_KEY_UP) {
             userJumping = true;
@@ -367,6 +379,9 @@ void kbdS(int key, int x, int y) {
 void mouse(int button, int state, int x, int y) {
     // Listens for a click on the intro screen to start the game
     if(state == GLUT_DOWN && currentScreen == intro) {
+        currentScreen = avatar;
+    }
+    else if(state == GLUT_DOWN && currentScreen == avatar) {
         currentScreen = game;
 
         // Starts the timers
@@ -389,7 +404,7 @@ int main(int argc, char** argv) {
     glutInitWindowSize((int)width, (int)height);
     glutInitWindowPosition(100, 200); // Position the window's initial top-left corner
     /* create the window and store the handle to it */
-    wd = glutCreateWindow("Jumper" /* title */ );
+    wd = glutCreateWindow("Trail Runner" /* title */ );
     
     // Register callback handler for window re-paint event
     glutDisplayFunc(display);
