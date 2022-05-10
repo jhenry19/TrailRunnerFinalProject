@@ -64,6 +64,8 @@ int score;
 string scoreAsString; // used so variables aren't initialized in the display loop
 bool collision;
 
+bool validInput; // Used for name input validation
+
 void initClouds() {
     clouds.clear();
     dimensions cloudBottom(30, 30);
@@ -161,6 +163,7 @@ void init() {
     sendRock();
     currentScreen = intro;
     textboxText = "";
+    validInput = true;
 }
 
 /* Initialize OpenGL Graphics */
@@ -219,12 +222,6 @@ void display() {
         for (const char &letter : line5) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
-
-        Tree t = Tree(100,200);
-        t.setSize(dimensions(100,300));
-
-        t.draw();
-
     }
 
     /*
@@ -266,6 +263,14 @@ void display() {
         glRasterPos2i(width * .30, height * .29);
         for (const char &letter : line3){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
+        }
+
+        if (!validInput) {
+            string invalidInputText = "Invalid name. Please try again.";
+            glRasterPos2i(width * .37, height * .32);
+            for (const char &letter : invalidInputText){
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
+            }
         }
 
         //todo user selects color
@@ -513,11 +518,30 @@ void kbd(unsigned char key, int x, int y) {
 
     if (currentScreen == avatar){
         if (key == 127) { // Backspace pressed
-            cout << "back pressed" << endl;
             if (textboxText.length() > 0) {
-                cout << "substring" << endl;
                 textboxText = textboxText.substr(0, textboxText.length() - 1);
-                cout << textboxText << endl;
+            }
+        }
+        else if (key == 13) { // Submit
+            validInput = true;
+
+            // Checks length
+            if (textboxText.length() > 10) {
+                validInput = false;
+            }
+
+            // Checks for digits
+            for (char c : textboxText) {
+                if (isdigit(c)) validInput = false;
+            }
+
+            if (validInput) {
+                currentScreen = game;
+
+                // Starts the timers
+                glutTimerFunc(0, cloudTimer, 0);
+                glutTimerFunc(0, treeTimer, 0);
+                glutTimerFunc(0, rockTimer, 0);
             }
         }
         else {
@@ -525,7 +549,6 @@ void kbd(unsigned char key, int x, int y) {
         }
     }
     glutPostRedisplay();
-
 }
 
 void kbdS(int key, int x, int y) {
