@@ -29,6 +29,9 @@ Rect trail;
 Rect textbox;
 Rect button1;
 Rect button2;
+Rect button3;
+Rect button4;
+Rect button5;
 vector<Tree> trees;
 Rect user;
 Rect userCopy;
@@ -261,21 +264,21 @@ void display() {
         //Print string
         glColor3f(0,0,0);
         //Prints string to screen
-        string line4 = "Choose your avatar's color";
+        string line4 = "Choose your avatar's color:";
         glRasterPos2i(width * .28, height * .40);
         for (const char &letter : line4){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        //Create buttons
-        dimensions buttonsize(30,30);
-        button1.setSize(buttonsize);
+        //Create color toggle buttons
+        dimensions buttonsize1(30,30);
+        button1.setSize(buttonsize1);
         button1.setColor(0,0,0,.5);
         button1.setCenterX(350);
         button1.setCenterY(270);
         button1.draw();
 
-        button2.setSize(buttonsize);
+        button2.setSize(buttonsize1);
         button2.setColor(0,0,0,.5);
         button2.setCenterX(150);
         button2.setCenterY(270);
@@ -287,7 +290,55 @@ void display() {
         userCopy.draw();
         
         //todo user selects difficulty
-        currentDifficulty = easy; // this is a placeholder value so the game can be tested
+        //Print string
+        glColor3f(0,0,0);
+        //Prints string to screen
+        string line5 = "Choose the difficulty:";
+        glRasterPos2i(width * .32, height * .70);
+        for (const char &letter : line5){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        //Create difficulty buttons
+        dimensions buttonsize2(70,40);
+        button3.setSize(buttonsize2);
+        button3.setColor(0,1,0,1);
+        button3.setCenterX(100);
+        button3.setCenterY(400);
+        button3.draw();
+        glColor3f(0,0,0);
+        string line6 = "Easy";
+        glRasterPos2i(width * .16, height * .81);
+        for (const char &letter : line6){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        button4.setSize(buttonsize2);
+        button4.setColor(yellow);
+        button4.setCenterX(250);
+        button4.setCenterY(400);
+        button4.draw();
+        glColor3f(0,0,0);
+        string line7 = "Medium";
+        glRasterPos2i(width * .43, height * .81);
+        for (const char &letter : line7){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        button5.setSize(buttonsize2);
+        button5.setColor(1,0,0,1);
+        button5.setCenterX(400);
+        button5.setCenterY(400);
+        button5.draw();
+        glColor3f(0,0,0);
+        string line8 = "Hard";
+        glRasterPos2i(width * .76, height * .81);
+        for (const char &letter : line8){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        //default difficulty if none selected
+        currentDifficulty = easy;
         
 
     }
@@ -478,19 +529,37 @@ void mouse(int button, int state, int x, int y) {
     }
 
     else if (state == GLUT_DOWN && currentScreen == avatar) {
-        if ((310<x && x< 460) && (107<y && y <129) && (colorVectorIndex < 8)){
+        //Looking for button clicks on avatar screen
+        //Clicked on textbox
+        if ((310<x && x< 460) && (107<y && y <129)){
+
+        }
+        //Clicked on right color toggle button
+        else if ((335<x && x< 365) && (255<y && y <285) && (colorVectorIndex < 8)){
             user.setColor(colorVector[colorVectorIndex+1]);
             userCopy.setColor(colorVector[colorVectorIndex+1]);
+
         }
-        else if ((335<x && x< 365) && (255<y && y <285) && (colorVectorIndex > 0)){
+
+        //Clicked on left color toggle button
+        else if ((135<x && x<165) && (255<y && y <285) && (colorVectorIndex > 0)) {
             user.setColor(colorVector[colorVectorIndex-1]);
             userCopy.setColor(colorVector[colorVectorIndex-1]);
         }
 
-        else if ((135<x && x<165) && (255<y && y <285)) {
-            userCopy.setColor(purple);
-            user.setColor(purple);
-            userCopy.draw();
+        //Clicked on easy button
+        else if ((65<x && x<135) && (380<y && y <420)) {
+            currentDifficulty = easy;
+        }
+
+        //Clicked on medium button
+        else if ((215<x && x<285) && (380<y && y <420)) {
+            currentDifficulty = medium;
+        }
+
+        //Clicked on hard button
+        else if ((365<x && x<435) && (380<y && y <420)) {
+            currentDifficulty = hard;
         }
         else {
             currentScreen = game;
