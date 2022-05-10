@@ -110,7 +110,7 @@ void initTrees() {
 }
 
 void initUser() {
-    user = Rect(colorVector[colorVectorIndex],50,userStartY);
+    user = Rect(colorVector[colorVectorIndex % colorVector.size()],50,userStartY);
     user.setHeight(50);
     user.setWidth(50);
 
@@ -233,7 +233,7 @@ void display() {
         //Prints string to screen
         glColor3f(0,0,0);
         string line1 = "Avatar Creation";
-        glRasterPos2i(width * .40, height * .15);
+        glRasterPos2i(width * .38, height * .15);
         for (const char &letter : line1) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
@@ -262,15 +262,20 @@ void display() {
 
         //Textbox instructions
         string line3 = "(Input must be string of letters no longer than 10 characters)";
-        glRasterPos2i(width * .30, height * .29);
+        glRasterPos2i(width * .25, height * .29);
         for (const char &letter : line3){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
+        }
+        string instructions = "Press enter to submit";
+        glRasterPos2i(width * .37, height * .32);
+        for (const char &letter : instructions){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
         }
 
         if (!validInput) {
             glColor3f(1,0,0);
             string invalidInputText = "Invalid name. Please try again.";
-            glRasterPos2i(width * .37, height * .32);
+            glRasterPos2i(width * .37, height * .35);
             for (const char &letter : invalidInputText){
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, letter);
             }
@@ -284,6 +289,12 @@ void display() {
         glRasterPos2i(width * .28, height * .40);
         for (const char &letter : line4){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        instructions = "Press the right or left box to change the color.";
+        glRasterPos2i(width * .30, height * .45);
+        for (const char &letter : instructions){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
         }
 
         //Create color toggle buttons
@@ -352,11 +363,6 @@ void display() {
         for (const char &letter : line8){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
-
-        //default difficulty if none selected
-        currentDifficulty = easy;
-        
-
     }
     /*
      * Game screen
@@ -425,11 +431,11 @@ void display() {
             box.draw();
 
             glColor3f(0, 0, 0);
-            string line1 = "You were squashed by a rock!";
+            string line1 = textboxText + " was squashed by a rock!";
             string line2 = "Your score was " + scoreAsString + ".";
             string line3 = "To play again, press space. To quit, press escape";
 
-            glRasterPos2i(width * .32, height * .15);
+            glRasterPos2i(width * .30, height * .15);
             for (const char &letter : line1) {
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
             }
