@@ -164,6 +164,8 @@ void init() {
     currentScreen = intro;
     textboxText = "";
     validInput = true;
+
+    user.setColor(colorVector[colorVectorIndex % colorVector.size()]);
 }
 
 /* Initialize OpenGL Graphics */
@@ -298,7 +300,7 @@ void display() {
         rightColorButton.setCenterY(270);
         rightColorButton.draw();
 
-        userCopy = Rect(white, 250, 270);
+        userCopy = Rect(colorVector[colorVectorIndex % colorVector.size()], 250, 270);
         userCopy.setHeight(50);
         userCopy.setWidth(50);
         userCopy.draw();
@@ -582,19 +584,15 @@ void mouse(int button, int state, int x, int y) {
 
         //Clicked on right color toggle button
         if (cursorBox.isOverlapping(rightColorButton)){
-            if (colorVectorIndex < colorVector.size() - 1){
-                user.setColor(colorVector[colorVectorIndex+1]);
-                userCopy.setColor(colorVector[colorVectorIndex+1]);
-                glutPostRedisplay();
-            }
+            ++colorVectorIndex;
+            user.setColor(colorVector[colorVectorIndex % colorVector.size()]);
+            userCopy.setColor(colorVector[colorVectorIndex % colorVector.size()]);
         }
         //Clicked on left color toggle button
         else if (cursorBox.isOverlapping(leftColorButton)){
-            if (colorVectorIndex > 0) {
-                user.setColor(colorVector[colorVectorIndex - 1]);
-                userCopy.setColor(colorVector[colorVectorIndex - 1]);
-                glutPostRedisplay();
-            }
+            --colorVectorIndex;
+            user.setColor(colorVector[colorVectorIndex % colorVector.size()]);
+            userCopy.setColor(colorVector[colorVectorIndex % colorVector.size()]);
         }
         //Clicked on easy button
         else if (cursorBox.isOverlapping(easyButton)) {
