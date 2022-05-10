@@ -10,6 +10,7 @@ using namespace std;
 
 GLdouble width, height;
 int wd;
+int colorVectorIndex = 0;
 const color skyBlue(77/255.0, 213/255.0, 240/255.0);
 const color grey(128/255.0, 128/255.0, 128/255.0);
 const color white(1, 1, 1);
@@ -21,6 +22,7 @@ const color lightGrey(200/255.0, 200/255.0, 200/255.0);
 const color blueGrey(110/255.0, 127/255.0, 127/255.0);
 const color orange(255/255.0, 165/255.0, 0);
 
+vector<color> colorVector = {white, purple, black, yellow, brown, orange, lightGrey};
 string textboxText;
 
 vector<unique_ptr<Shape>> clouds;
@@ -103,7 +105,7 @@ void initTrees() {
 }
 
 void initUser() {
-    user = Rect(white,50,userStartY);
+    user = Rect(colorVector[colorVectorIndex],50,userStartY);
     user.setHeight(50);
     user.setWidth(50);
 
@@ -491,18 +493,28 @@ void mouse(int button, int state, int x, int y) {
     }
 
     else if (state == GLUT_DOWN && currentScreen == avatar) {
-        if ((310<x && x< 460) && (107<y && y <129)){
-
+        if ((310<x && x< 460) && (107<y && y <129) && (colorVectorIndex < 8)){
+            user.setColor(colorVector[colorVectorIndex+1]);
+            userCopy.setColor(colorVector[colorVectorIndex+1]);
         }
-//        if (())
-//        else{
-//            currentScreen = game;
-//
-//            // Starts the timers
-//            glutTimerFunc(0, cloudTimer, 0);
-//            glutTimerFunc(0, treeTimer, 0);
-//            glutTimerFunc(0, rockTimer, 0);
-//        }
+        else if ((335<x && x< 365) && (255<y && y <285) && (colorVectorIndex > 0)){
+            user.setColor(colorVector[colorVectorIndex-1]);
+            userCopy.setColor(colorVector[colorVectorIndex-1]);
+        }
+
+        else if ((135<x && x<165) && (255<y && y <285)) {
+            userCopy.setColor(purple);
+            user.setColor(purple);
+            userCopy.draw();
+        }
+        else {
+            currentScreen = game;
+
+            // Starts the timers
+            glutTimerFunc(0, cloudTimer, 0);
+            glutTimerFunc(0, treeTimer, 0);
+            glutTimerFunc(0, rockTimer, 0);
+        }
     }
     glutPostRedisplay();
 }
