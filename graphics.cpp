@@ -21,6 +21,7 @@ const color lightGrey(200/255.0, 200/255.0, 200/255.0);
 const color blueGrey(110/255.0, 127/255.0, 127/255.0);
 const color orange(255/255.0, 165/255.0, 0);
 
+string textboxText;
 
 vector<unique_ptr<Shape>> clouds;
 Rect trail;
@@ -154,6 +155,7 @@ void init() {
     initGame();
     sendRock();
     currentScreen = intro;
+    textboxText = "";
 }
 
 /* Initialize OpenGL Graphics */
@@ -254,6 +256,12 @@ void display() {
         textbox.setCenterX(385);
         textbox.setCenterY(118);
         textbox.draw();
+
+        //Write User input in textbox;
+        glRasterPos2i(width * .60, height * .40);
+        for (const char &letter : textboxText){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
+        }
 
         //todo user selects color
         //Print string
@@ -449,6 +457,13 @@ void kbd(unsigned char key, int x, int y) {
         sendRock();
         glutTimerFunc(10, rockTimer, 0); // restart car timer after collision
     }
+
+    if (currentScreen == avatar){
+        textboxText += '0' + key; // Converts ascii int to character
+        cout << textboxText << endl;
+    }
+    glutPostRedisplay();
+
 }
 
 void kbdS(int key, int x, int y) {
@@ -479,15 +494,15 @@ void mouse(int button, int state, int x, int y) {
         if ((310<x && x< 460) && (107<y && y <129)){
 
         }
-        if (())
-        else{
-            currentScreen = game;
-
-            // Starts the timers
-            glutTimerFunc(0, cloudTimer, 0);
-            glutTimerFunc(0, treeTimer, 0);
-            glutTimerFunc(0, rockTimer, 0);
-        }
+//        if (())
+//        else{
+//            currentScreen = game;
+//
+//            // Starts the timers
+//            glutTimerFunc(0, cloudTimer, 0);
+//            glutTimerFunc(0, treeTimer, 0);
+//            glutTimerFunc(0, rockTimer, 0);
+//        }
     }
     glutPostRedisplay();
 }
