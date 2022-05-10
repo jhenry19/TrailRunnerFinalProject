@@ -28,11 +28,11 @@ string textboxText;
 vector<unique_ptr<Shape>> clouds;
 Rect trail;
 Rect textbox;
-Rect button1;
-Rect button2;
-Rect button3;
-Rect button4;
-Rect button5;
+Rect leftColorButton;
+Rect rightColorButton;
+Rect easyButton;
+Rect mediumButton;
+Rect hardButton;
 vector<Tree> trees;
 Rect user;
 Rect userCopy;
@@ -266,10 +266,11 @@ void display() {
         }
 
         if (!validInput) {
+            glColor3f(1,0,0);
             string invalidInputText = "Invalid name. Please try again.";
             glRasterPos2i(width * .37, height * .32);
             for (const char &letter : invalidInputText){
-                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
+                glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, letter);
             }
         }
 
@@ -285,17 +286,17 @@ void display() {
 
         //Create color toggle buttons
         dimensions buttonsize1(30,30);
-        button1.setSize(buttonsize1);
-        button1.setColor(0,0,0,.5);
-        button1.setCenterX(350);
-        button1.setCenterY(270);
-        button1.draw();
+        leftColorButton.setSize(buttonsize1);
+        leftColorButton.setColor(0, 0, 0, .5);
+        leftColorButton.setCenterX(350);
+        leftColorButton.setCenterY(270);
+        leftColorButton.draw();
 
-        button2.setSize(buttonsize1);
-        button2.setColor(0,0,0,.5);
-        button2.setCenterX(150);
-        button2.setCenterY(270);
-        button2.draw();
+        rightColorButton.setSize(buttonsize1);
+        rightColorButton.setColor(0, 0, 0, .5);
+        rightColorButton.setCenterX(150);
+        rightColorButton.setCenterY(270);
+        rightColorButton.draw();
 
         userCopy = Rect(white, 250, 270);
         userCopy.setHeight(50);
@@ -314,11 +315,11 @@ void display() {
 
         //Create difficulty buttons
         dimensions buttonsize2(70,40);
-        button3.setSize(buttonsize2);
-        button3.setColor(0,1,0,1);
-        button3.setCenterX(100);
-        button3.setCenterY(400);
-        button3.draw();
+        easyButton.setSize(buttonsize2);
+        easyButton.setColor(0, 1, 0, 1);
+        easyButton.setCenterX(100);
+        easyButton.setCenterY(400);
+        easyButton.draw();
         glColor3f(0,0,0);
         string line6 = "Easy";
         glRasterPos2i(width * .16, height * .81);
@@ -326,11 +327,11 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        button4.setSize(buttonsize2);
-        button4.setColor(yellow);
-        button4.setCenterX(250);
-        button4.setCenterY(400);
-        button4.draw();
+        mediumButton.setSize(buttonsize2);
+        mediumButton.setColor(yellow);
+        mediumButton.setCenterX(250);
+        mediumButton.setCenterY(400);
+        mediumButton.draw();
         glColor3f(0,0,0);
         string line7 = "Medium";
         glRasterPos2i(width * .43, height * .81);
@@ -338,11 +339,11 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        button5.setSize(buttonsize2);
-        button5.setColor(1,0,0,1);
-        button5.setCenterX(400);
-        button5.setCenterY(400);
-        button5.draw();
+        hardButton.setSize(buttonsize2);
+        hardButton.setColor(1, 0, 0, 1);
+        hardButton.setCenterX(400);
+        hardButton.setCenterY(400);
+        hardButton.draw();
         glColor3f(0,0,0);
         string line8 = "Hard";
         glRasterPos2i(width * .76, height * .81);
@@ -575,49 +576,39 @@ void mouse(int button, int state, int x, int y) {
         currentScreen = avatar;
     }
 
-    else if (state == GLUT_DOWN && currentScreen == avatar) {
-        //Looking for button clicks on avatar screen
-        //Clicked on textbox
-        if ((310<x && x< 460) && (107<y && y <129)){
+    else if (state == GLUT_DOWN && currentScreen == avatar) { //Looking for button clicks on avatar screen
 
-        }
+        Rect cursorBox = Rect(x,y, dimensions(1, 1)); // used to check if overlapping
+
         //Clicked on right color toggle button
-        else if ((335<x && x< 365) && (255<y && y <285)){
+        if (cursorBox.isOverlapping(rightColorButton)){
             if (colorVectorIndex < colorVector.size() - 1){
                 user.setColor(colorVector[colorVectorIndex+1]);
                 userCopy.setColor(colorVector[colorVectorIndex+1]);
+                glutPostRedisplay();
             }
         }
-
         //Clicked on left color toggle button
-        else if ((135<x && x<165) && (255<y && y <285)){
+        else if (cursorBox.isOverlapping(leftColorButton)){
             if (colorVectorIndex > 0) {
                 user.setColor(colorVector[colorVectorIndex - 1]);
                 userCopy.setColor(colorVector[colorVectorIndex - 1]);
+                glutPostRedisplay();
             }
         }
-
         //Clicked on easy button
-        else if ((65<x && x<135) && (380<y && y <420)) {
+        else if (cursorBox.isOverlapping(easyButton)) {
             currentDifficulty = easy;
         }
 
         //Clicked on medium button
-        else if ((215<x && x<285) && (380<y && y <420)) {
+        else if (cursorBox.isOverlapping(mediumButton)) {
             currentDifficulty = medium;
         }
 
         //Clicked on hard button
-        else if ((365<x && x<435) && (380<y && y <420)) {
+        else if (cursorBox.isOverlapping(hardButton)) {
             currentDifficulty = hard;
-        }
-        else {
-            currentScreen = game;
-
-            // Starts the timers
-            glutTimerFunc(0, cloudTimer, 0);
-            glutTimerFunc(0, treeTimer, 0);
-            glutTimerFunc(0, rockTimer, 0);
         }
     }
     glutPostRedisplay();
