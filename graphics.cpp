@@ -238,15 +238,14 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        //todo user selects name
-        //Prints string to screen
+        // Name input
         string line2 = "Please input your name:  ";
         glRasterPos2i(width * .22, height * .25);
         for (const char &letter : line2){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        //Create textbox
+        // Create textbox
         dimensions textBoxSize(150,22);
         textbox.setSize(textBoxSize);
         textbox.setColor(1.0,1.0,1.0,.5);
@@ -254,13 +253,13 @@ void display() {
         textbox.setCenterY(118);
         textbox.draw();
 
-        //Write user input in textbox
+        // Write user input in textbox
         glColor3f(0,0,0); // need to change due to white box above
         for (const char &letter : textboxText){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        //Textbox instructions
+        // Textbox instructions
         string line3 = "(Input must be string of letters no longer than 10 characters)";
         glRasterPos2i(width * .25, height * .29);
         for (const char &letter : line3){
@@ -272,6 +271,7 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
         }
 
+        // Invalid input
         if (!validInput) {
             glColor3f(1,0,0);
             string invalidInputText = "Invalid name. Please try again.";
@@ -281,10 +281,8 @@ void display() {
             }
         }
 
-        //todo user selects color
-        //Print string
+        // Avatar color
         glColor3f(0,0,0);
-        //Prints string to screen
         string line4 = "Choose your avatar's color:";
         glRasterPos2i(width * .28, height * .40);
         for (const char &letter : line4){
@@ -315,11 +313,9 @@ void display() {
         userCopy.setHeight(50);
         userCopy.setWidth(50);
         userCopy.draw();
-        
-        //todo user selects difficulty
-        //Print string
+
+        // Difficulty section
         glColor3f(0,0,0);
-        //Prints string to screen
         string line5 = "Choose the difficulty:";
         glRasterPos2i(width * .32, height * .70);
         for (const char &letter : line5){
