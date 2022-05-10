@@ -30,6 +30,9 @@ Rect trail;
 Rect textbox;
 Rect button1;
 Rect button2;
+Rect easyButton;
+Rect mediumButton;
+Rect hardButton;
 vector<Tree> trees;
 Rect user;
 Rect userCopy;
@@ -190,45 +193,39 @@ void display() {
         glColor3f(0, 0, 0);
 
         // Prints the message to the window
-        string line1 = "Get Ready to Jump!";
+        string line1 = "Welcome to Trail Runner!";
         string line2 = "Use the up arrow to jump over the rocks.";
         string line3 = "and use the down arrow to speed up your jump.";
-        string line4 = "To begin, click anywhere on the screen.";
+        string line4 = "To begin making your avatar, click anywhere on the screen.";
         string line5 = "To quit, press the escape key.";
 
-        glRasterPos2i(width * .35, height * .3);
+        glRasterPos2i(width * .27, height * .15);
         for (const char &letter : line1) {
-            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
-        glRasterPos2i(width * .17, height * .4);
+        glRasterPos2i(width * .17, height * .3);
         for (const char &letter : line2) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
-        glRasterPos2i(width * .15, height * .5);
+        glRasterPos2i(width * .15, height * .4);
         for (const char &letter : line3) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
-        glRasterPos2i(width * .17, height * .6);
+        glRasterPos2i(width * .05, height * .5);
         for (const char &letter : line4) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
-        glRasterPos2i(width * .25, height * .7);
+        glRasterPos2i(width * .25, height * .6);
         for (const char &letter : line5) {
             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, letter);
         }
-
-        Tree t = Tree(100,200);
-        t.setSize(dimensions(100,300));
-
-        t.draw();
-
     }
 
     /*
      * Avatar making screen
      */
     if (currentScreen == avatar) {
-        //Prints string to screen
+        // Title
         glColor3f(0,0,0);
         string line1 = "Avatar Creation";
         glRasterPos2i(width * .40, height * .15);
@@ -236,8 +233,7 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        //todo user selects name
-        //Prints string to screen
+        // Name input
         string line2 = "Please input your name:  ";
         glRasterPos2i(width * .22, height * .25);
         for (const char &letter : line2){
@@ -258,7 +254,7 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
-        //Textbox instructions
+        // Textbox instructions
         string line3 = "(Input must be string of letters no longer than 10 characters)";
         glRasterPos2i(width * .30, height * .29);
         for (const char &letter : line3){
@@ -269,14 +265,14 @@ void display() {
         //Print string
         glColor3f(0,0,0);
         //Prints string to screen
-        string line4 = "Choose your avatar's color";
+        string line4 = "Choose your avatar's color:";
         glRasterPos2i(width * .28, height * .40);
         for (const char &letter : line4){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
         //Create buttons
-        dimensions buttonsize(30,30);
+        dimensions buttonsize(75,50);
         button1.setSize(buttonsize);
         button1.setColor(0,0,0,.5);
         button1.setCenterX(350);
@@ -295,8 +291,32 @@ void display() {
         userCopy.draw();
         
         //todo user selects difficulty
+
         currentDifficulty = easy; // this is a placeholder value so the game can be tested
-        
+        string difficultyText = "Choose your difficulty: ";
+        glRasterPos2i(width * .3, height * .70);
+        for (const char &letter : difficultyText){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        easyButton.setSize(buttonsize);
+        easyButton.setColor(0,0,0,.5);
+        easyButton.setCenterX(width * .3);
+        easyButton.setCenterY(height * .75);
+        easyButton.draw();
+
+        mediumButton.setSize(buttonsize);
+        mediumButton.setColor(0,0,0,.5);
+        mediumButton.setCenterX(width * .5);
+        mediumButton.setCenterY(height * .75);
+        mediumButton.draw();
+
+        hardButton.setSize(buttonsize);
+        hardButton.setColor(0,0,0,.5);
+        hardButton.setCenterX(width * .7);
+        hardButton.setCenterY(height * .75);
+        hardButton.draw();
+
 
     }
     /*
@@ -527,7 +547,6 @@ void mouse(int button, int state, int x, int y) {
     }
     glutPostRedisplay();
 }
-
 
 /* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
