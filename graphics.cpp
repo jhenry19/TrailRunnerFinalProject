@@ -24,8 +24,12 @@ const color orange(255/255.0, 165/255.0, 0);
 
 vector<unique_ptr<Shape>> clouds;
 Rect trail;
+Rect textbox;
+Rect button1;
+Rect button2;
 vector<Tree> trees;
 Rect user;
+Rect userCopy;
 vector<unique_ptr<Rock>> rocks;
 vector<int> rockSpeed;
 
@@ -236,17 +240,49 @@ void display() {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
         }
 
+        //Textbox instructions
+        string line3 = "(Input must be string of letters no longer than 10 characters)";
+        glRasterPos2i(width * .30, height * .29);
+        for (const char &letter : line3){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
+        }
+
         //Create textbox
         dimensions textBoxSize(150,22);
-        Rect textbox(1.0, 1.0, 1.0, .5, 385, 118, textBoxSize);
+        textbox.setSize(textBoxSize);
+        textbox.setColor(1.0,1.0,1.0,.5);
+        textbox.setCenterX(385);
+        textbox.setCenterY(118);
         textbox.draw();
 
-
-
-
-
-
         //todo user selects color
+        //Print string
+        glColor3f(0,0,0);
+        //Prints string to screen
+        string line4 = "Choose your avatar's color";
+        glRasterPos2i(width * .28, height * .40);
+        for (const char &letter : line4){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        //Create buttons
+        dimensions buttonsize(30,30);
+        button1.setSize(buttonsize);
+        button1.setColor(0,0,0,.5);
+        button1.setCenterX(350);
+        button1.setCenterY(270);
+        button1.draw();
+
+        button2.setSize(buttonsize);
+        button2.setColor(0,0,0,.5);
+        button2.setCenterX(150);
+        button2.setCenterY(270);
+        button2.draw();
+
+        userCopy = Rect(white, 250, 270);
+        userCopy.setHeight(50);
+        userCopy.setWidth(50);
+        userCopy.draw();
         
         //todo user selects difficulty
         currentDifficulty = easy; // this is a placeholder value so the game can be tested
@@ -438,16 +474,24 @@ void mouse(int button, int state, int x, int y) {
     if(state == GLUT_DOWN && currentScreen == intro) {
         currentScreen = avatar;
     }
-    else if(state == GLUT_DOWN && currentScreen == avatar) {
-        currentScreen = game;
 
-        // Starts the timers
-        glutTimerFunc(0, cloudTimer, 0);
-        glutTimerFunc(0, treeTimer, 0);
-        glutTimerFunc(0, rockTimer, 0);
+    else if (state == GLUT_DOWN && currentScreen == avatar) {
+        if ((310<x && x< 460) && (107<y && y <129)){
+
+        }
+        if (())
+        else{
+            currentScreen = game;
+
+            // Starts the timers
+            glutTimerFunc(0, cloudTimer, 0);
+            glutTimerFunc(0, treeTimer, 0);
+            glutTimerFunc(0, rockTimer, 0);
+        }
     }
     glutPostRedisplay();
 }
+
 
 /* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
