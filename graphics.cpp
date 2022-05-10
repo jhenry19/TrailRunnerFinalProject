@@ -559,16 +559,19 @@ void mouse(int button, int state, int x, int y) {
 
         }
         //Clicked on right color toggle button
-        else if ((335<x && x< 365) && (255<y && y <285) && (colorVectorIndex < 8)){
-            user.setColor(colorVector[colorVectorIndex+1]);
-            userCopy.setColor(colorVector[colorVectorIndex+1]);
-
+        else if ((335<x && x< 365) && (255<y && y <285)){
+            if (colorVectorIndex < colorVector.size() - 1){
+                user.setColor(colorVector[colorVectorIndex+1]);
+                userCopy.setColor(colorVector[colorVectorIndex+1]);
+            }
         }
 
         //Clicked on left color toggle button
-        else if ((135<x && x<165) && (255<y && y <285) && (colorVectorIndex > 0)) {
-            user.setColor(colorVector[colorVectorIndex-1]);
-            userCopy.setColor(colorVector[colorVectorIndex-1]);
+        else if ((135<x && x<165) && (255<y && y <285)){
+            if (colorVectorIndex > 0) {
+                user.setColor(colorVector[colorVectorIndex - 1]);
+                userCopy.setColor(colorVector[colorVectorIndex - 1]);
+            }
         }
 
         //Clicked on easy button
