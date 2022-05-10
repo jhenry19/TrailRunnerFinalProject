@@ -238,17 +238,10 @@ void display() {
 
         //todo user selects name
         //Prints string to screen
-        string line2 = "Please input your name: ";
+        string line2 = "Please input your name:  ";
         glRasterPos2i(width * .22, height * .25);
         for (const char &letter : line2){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
-        }
-
-        //Textbox instructions
-        string line3 = "(Input must be string of letters no longer than 10 characters)";
-        glRasterPos2i(width * .30, height * .29);
-        for (const char &letter : line3){
-            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
         }
 
         //Create textbox
@@ -259,9 +252,16 @@ void display() {
         textbox.setCenterY(118);
         textbox.draw();
 
-        //Write User input in textbox;
-        glRasterPos2i(width * .60, height * .40);
+        //Write user input in textbox
+        glColor3f(0,0,0); // need to change due to white box above
         for (const char &letter : textboxText){
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, letter);
+        }
+
+        //Textbox instructions
+        string line3 = "(Input must be string of letters no longer than 10 characters)";
+        glRasterPos2i(width * .30, height * .29);
+        for (const char &letter : line3){
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_10, letter);
         }
 
@@ -461,8 +461,17 @@ void kbd(unsigned char key, int x, int y) {
     }
 
     if (currentScreen == avatar){
-        textboxText += '0' + key; // Converts ascii int to character
-        cout << textboxText << endl;
+        if (key == 127) { // Backspace pressed
+            cout << "back pressed" << endl;
+            if (textboxText.length() > 0) {
+                cout << "substring" << endl;
+                textboxText = textboxText.substr(0, textboxText.length() - 1);
+                cout << textboxText << endl;
+            }
+        }
+        else {
+            textboxText += char(key); // Converts ascii int to character
+        }
     }
     glutPostRedisplay();
 
